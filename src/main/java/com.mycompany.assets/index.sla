@@ -1,0 +1,28 @@
+ 
+namespace App\Public ;
+
+import App\Database\Dao ;
+
+class Index {
+
+	String $name ;
+	Integer $id ;
+	Float $height ; 
+	
+	void method main ( $name , $id ) {
+		$this->name = $name ;
+		$this->id = $id ;
+	}
+	
+	String method getName ( ) {
+		return $this->name ;
+	}
+	
+	Float method getHeigthPlusFloat ( ) {
+		return $this->height + 90.52 ;
+	}
+	
+	Float method getHeigthPlusInteger ( ) {
+		return $this->height + 92 ;
+	}
+}
