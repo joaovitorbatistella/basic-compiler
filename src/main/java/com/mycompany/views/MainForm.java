@@ -277,6 +277,24 @@ public class MainForm extends javax.swing.JFrame {
             dtm.addRow(data);
         }
     }
+        
+        
+    private void checkAndInsertSymbols(String token, String word, String type) {
+        int hasEqual = 0;
+        for(ArrayList<String>i : this.symbols) {
+            if(i.get(1).equals(word)) {
+               hasEqual++; 
+            }
+        }
+        
+        if(hasEqual==0) {
+            ArrayList<String> el = new ArrayList<>();
+            el.add(token);
+            el.add(word);
+            el.add(type);
+            this.symbols.add(el);   
+        }
+    }
     
     public void compile(String content) {
         String[] splited = content.split(" |\n|\r|\t");
@@ -286,6 +304,7 @@ public class MainForm extends javax.swing.JFrame {
             java.util.List<String> valid = Arrays.asList(this.reserved_words);
             
             if(word.matches(" |")) {
+                i++;
                 continue;
             }
             
@@ -295,50 +314,41 @@ public class MainForm extends javax.swing.JFrame {
                     e.add( "<"+word+">");
                     this.lexToken.add(e);
             } else {
-                if(word.startsWith("$")) {
+                if(i>0 && splited[i-1].equals("method")) {
+                    String token = "<function,"+word+">";
+                    ArrayList<String> e = new ArrayList<>();
+                    e.add(word);
+                    e.add(token);
+                    this.lexToken.add(e);
+                    this.checkAndInsertSymbols(token, word, "function");
+                } else if(word.startsWith("$")) {
                     String token = "<var,"+i+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
                     e.add(token);
                     this.lexToken.add(e);
-                    ArrayList<String> el = new ArrayList<>();
-                    el.add(token);
-                    el.add(word);
-                    el.add("var");
-                    this.symbols.add(el);
+                    this.checkAndInsertSymbols(token, word, "var");
                 } else if (word.matches("\\d*[.]+?\\d*")) {
                     String token = "<float,"+word+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
                     e.add(token);
                     this.lexToken.add(e);
-                    ArrayList<String> el = new ArrayList<>();
-                    el.add(token);
-                    el.add(word);
-                    el.add("float");
-                    this.symbols.add(el);
+                    this.checkAndInsertSymbols(token, word, "float");
                 } else if (word.matches("^\\d*?\\d*$")) {
                     String token = "<integer,"+word+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
                     e.add(token);
                     this.lexToken.add(e);
-                    ArrayList<String> el = new ArrayList<>();
-                    el.add(token);
-                    el.add(word);
-                    el.add("int");
-                    this.symbols.add(el);
+                    this.checkAndInsertSymbols(token, word, "int");
                 } else {
                     String token = "<ext,"+i+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
                     e.add(token);
                     this.lexToken.add(e);
-                    ArrayList<String> el = new ArrayList<>();
-                    el.add(token);
-                    el.add(word);
-                    el.add("ext");
-                    this.symbols.add(el);
+                    this.checkAndInsertSymbols(token, word, "ext");
                 }
             }
             i++;
