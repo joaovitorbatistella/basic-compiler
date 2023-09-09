@@ -334,30 +334,32 @@ public class MainForm extends javax.swing.JFrame {
         }
         return false;
     }
-    
-    public void compile(String content) throws Exception {
-        String[] splited = content.split(" |\n|\r|\t");
-        
+      
+    public void compile(String content) throws Exception{
+        String[] splited = content.split(" |\n|\r|\t");//Faz o split do código (por espaço, quebras de linha (\n e \r) e tab) 
+                                                       //então coloca dentro do Array "splited"
         int i = 0;
-        for(String word : splited) {
+        
+        for(String word : splited) { //For Each do Array "splited", onde pega cada palavra individualmente e faz as verificações
             java.util.List<String> valid = Arrays.asList(this.reserved_words);
-            
-            if(word.matches(" |")) {
-                i++;
+                        
+            if(word.matches(" |")) {//Se a palavra selecionada for espaço ou vazio, apenas segue para a próxima palavra
+                i++;                //e incrementa o contador para não perder a referência
                 continue;
             }
             
-            if(valid.contains(word)) {
+            if(valid.contains(word)) {                      //Caso a palavra, seja uma das palavras reservadas, entra nessa condição
+                    ArrayList<String> e = new ArrayList<>();//Aqui, a palavra é adicionada no subarray e em duas colunas.
+                    e.add(word);                            //EX: coluna1 = namespace | coluna2 = <namespace>
+                    e.add( "<"+word+">");                   //Após, insere o subarray dentro do array principal lexToken
+                    this.lexToken.add(e);                  
+            } else {                                        //Caso não for palavra reservada, entra nas outras verificações
+                
+                if(i>0 && splited[i-1].equals("method")) {  //Se a palavra verificada não for reservada, porém a palavra anterior for "method"
+                    String token = "<function,"+word+">";   //então define-se que a palavra é um nome de função
                     ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add( "<"+word+">");
-                    this.lexToken.add(e);
-            } else {
-                if(i>0 && splited[i-1].equals("method")) {
-                    String token = "<function,"+word+">";
-                    ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add(token);
+                    e.add(word);                            //Adiciona a palavra e o token no subarray
+                    e.add(token);                           //EX: coluna1 = getSomething | coluna2 = <namespace>
                     this.lexToken.add(e);
                     this.checkAndInsertSymbols(token, word, "function");
                 } else if(word.startsWith("$")) {
