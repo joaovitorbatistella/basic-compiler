@@ -19,6 +19,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -296,7 +297,45 @@ public class MainForm extends javax.swing.JFrame {
         }
     }
     
-    public void compile(String content) {
+    private boolean isSpecialCharacter(char c) {
+        char[] specialChars = {'/', '*', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '\\', '{', '}', '[', ']', '|', '\\', '\\','?','/','<','>',',','-'};
+     
+        for(char i : specialChars) {
+            if(i == c) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean checkIsNotValidVar(char[] c, int index) {
+        if(c.length <= index) {
+            return true;
+        }
+        if((index == 0 && Character.isDigit(c[index])) || this.isSpecialCharacter(c[index])) {
+            return false;
+        }
+        return checkIsNotValidVar(c, index+1);
+    }
+    
+    private boolean isValidVar(String word) throws Exception {
+        StringBuilder str = new StringBuilder(word);
+        String toCheck = str.deleteCharAt(0).toString();
+        if(word.startsWith("$") && !toCheck.contains("$")) {
+            if(toCheck.startsWith("this->")) {
+                String[] removedThis = toCheck.split("(?<=this->)");
+                if(removedThis.length == 2) {
+                    toCheck = removedThis[1];
+                } else {
+                    throw new Exception("Wrong variable syntax at: "+word);
+                }
+            }
+            return this.checkIsNotValidVar(toCheck.toCharArray(), 0);
+        }
+        return false;
+    }
+    
+    public void compile(String content) throws Exception {
         String[] splited = content.split(" |\n|\r|\t");
         
         int i = 0;
@@ -322,6 +361,9 @@ public class MainForm extends javax.swing.JFrame {
                     this.lexToken.add(e);
                     this.checkAndInsertSymbols(token, word, "function");
                 } else if(word.startsWith("$")) {
+                    if(!this.isValidVar(word)) {
+                        throw new Exception("Wrong variable syntax at: "+word);
+                    }
                     String token = "<var,"+i+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
@@ -335,7 +377,7 @@ public class MainForm extends javax.swing.JFrame {
                     e.add(token);
                     this.lexToken.add(e);
                     this.checkAndInsertSymbols(token, word, "float");
-                } else if (word.matches("^\\d*?\\d*$")) {
+                } else if (word.matches("^\\d*?\\d*$") ) {
                     String token = "<integer,"+word+">";
                     ArrayList<String> e = new ArrayList<>();
                     e.add(word);
@@ -387,7 +429,11 @@ public class MainForm extends javax.swing.JFrame {
             }
         }
         
-        this.compile(content);
+        try {
+            this.compile(content);            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
