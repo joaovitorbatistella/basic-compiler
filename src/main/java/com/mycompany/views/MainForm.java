@@ -318,10 +318,10 @@ public class MainForm extends javax.swing.JFrame {
         return checkIsNotValidVar(c, index+1);
     }
     
-    private boolean isValidVar(String word) throws Exception {
+    private boolean isValidVar(String word) throws Exception {  //Faz a verificação se o nome da variável é válido
         StringBuilder str = new StringBuilder(word);
         String toCheck = str.deleteCharAt(0).toString();
-        if(word.startsWith("$") && !toCheck.contains("$")) {
+        if(word.startsWith("$") && !toCheck.contains("$")) { //Verifica se inicia com "$"
             if(toCheck.startsWith("this->")) {
                 String[] removedThis = toCheck.split("(?<=this->)");
                 if(removedThis.length == 2) {
@@ -355,21 +355,22 @@ public class MainForm extends javax.swing.JFrame {
                     this.lexToken.add(e);                  
             } else {                                        //Caso não for palavra reservada, entra nas outras verificações
                 
-                if(i>0 && splited[i-1].equals("method")) {  //Se a palavra verificada não for reservada, porém a palavra anterior for "method"
-                    String token = "<function,"+word+">";   //então define-se que a palavra é um nome de função
-                    ArrayList<String> e = new ArrayList<>();
+                if(i>0 && splited[i-1].equals("method")) {   //Se a palavra verificada não for reservada, porém a palavra anterior for "method"
+                    String token = "<function,"+word+">";           //então define-se que a palavra é um nome de função
+                    ArrayList<String> e = new ArrayList<>();    
                     e.add(word);                            //Adiciona a palavra e o token no subarray
-                    e.add(token);                           //EX: coluna1 = getSomething | coluna2 = <namespace>
-                    this.lexToken.add(e);
-                    this.checkAndInsertSymbols(token, word, "function");
-                } else if(word.startsWith("$")) {
-                    if(!this.isValidVar(word)) {
+                    e.add(token);                           //EX: coluna1 = getSomething | coluna2 = <function,getSomething>
+                    this.lexToken.add(e);                     //Após, insere o subarray dentro do array principal lexToken 
+                    this.checkAndInsertSymbols(token, word, "function"); //Tipo Function
+                    
+                } else if(word.startsWith("$")) {       //Se a palavra verificada não for reservada, mas inicia com "$"
+                    if(!this.isValidVar(word)) {              //verifica se o nome da variável é valido, caso não, mostra um erro de sintaxe
                         throw new Exception("Wrong variable syntax at: "+word);
                     }
-                    String token = "<var,"+i+">";
-                    ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add(token);
+                    String token = "<var,"+i+">";             //Caso seja válida, define que é variável
+                    ArrayList<String> e = new ArrayList<>();    
+                    e.add(word);                            //Adiciona a palavra e o token no subarray
+                    e.add(token);                           //EX: coluna1 = $var | coluna2 = <>
                     this.lexToken.add(e);
                     this.checkAndInsertSymbols(token, word, "var");
                 } else if (word.matches("\\d*[.]+?\\d*")) {
