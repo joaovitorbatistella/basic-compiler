@@ -324,7 +324,7 @@ public class MainForm extends javax.swing.JFrame {
         if(word.startsWith("$") && !toCheck.contains("$")) { //Verifica se inicia com "$"
             if(toCheck.startsWith("this->")) {
                 String[] removedThis = toCheck.split("(?<=this->)");
-                if(removedThis.length == 2) {
+                if(removedThis.length == 2) {                               //remove se tiver um "this->"
                     toCheck = removedThis[1];
                 } else {
                     throw new Exception("Wrong variable syntax at: "+word);
@@ -370,29 +370,38 @@ public class MainForm extends javax.swing.JFrame {
                     String token = "<var,"+i+">";             //Caso seja válida, define que é variável
                     ArrayList<String> e = new ArrayList<>();    
                     e.add(word);                            //Adiciona a palavra e o token no subarray
-                    e.add(token);                           //EX: coluna1 = $var | coluna2 = <>
+                    e.add(token);                           //EX: coluna1 = $id | coluna2 = <var,20>
                     this.lexToken.add(e);
                     this.checkAndInsertSymbols(token, word, "var");
-                } else if (word.matches("\\d*[.]+?\\d*")) {
-                    String token = "<float,"+word+">";
-                    ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add(token);
-                    this.lexToken.add(e);
+                    
+                } else if (word.matches("\\d*[.]+?\\d*")) {//Se a palavra verificada não for reservada
+                    String token = "<float,"+word+">";          //mas entrar no regex de float
+                    
+                    ArrayList<String> e = new ArrayList<>();    //Define que é um valor float
+                    
+                    e.add(word);                              //Adiciona a palavra e o token no subarray
+                    e.add(token);                             //EX: coluna1 = Float | coluna2 = <Float>
+                    this.lexToken.add(e);                       //Após, insere o subarray dentro do array principal lexToken 
                     this.checkAndInsertSymbols(token, word, "float");
-                } else if (word.matches("^\\d*?\\d*$") ) {
-                    String token = "<integer,"+word+">";
-                    ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add(token);
-                    this.lexToken.add(e);
+                    
+                } else if (word.matches("^\\d*?\\d*$") ) { //Se a palavra verificada não for reservada
+                    String token = "<integer,"+word+">";        //mas entrar no regex de integer
+                    
+                    ArrayList<String> e = new ArrayList<>();    //Define que é um valor inteiro
+                    
+                    e.add(word);                              //Adiciona a palavra e o token no subarray
+                    e.add(token);                             //EX: coluna1 = Integer | coluna2 = <Integer>
+                    this.lexToken.add(e);                       //Após, insere o subarray dentro do array principal lexToken 
                     this.checkAndInsertSymbols(token, word, "int");
-                } else {
-                    String token = "<ext,"+i+">";
-                    ArrayList<String> e = new ArrayList<>();
-                    e.add(word);
-                    e.add(token);
-                    this.lexToken.add(e);
+                
+                } else {                                        //Se a palavra verificada não for reservada
+                    String token = "<ext,"+i+">";               //e não entrar em nenhuma outra verificação
+                    
+                    ArrayList<String> e = new ArrayList<>();    //Define que é um ext
+                    
+                    e.add(word);                              //Adiciona a palavra e o token no subarray
+                    e.add(token);                             //EX: coluna1 = Index | coluna2 = <ext,11>
+                    this.lexToken.add(e);                       //Após, insere o subarray dentro do array principal lexToken 
                     this.checkAndInsertSymbols(token, word, "ext");
                 }
             }
